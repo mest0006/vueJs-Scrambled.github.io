@@ -1,11 +1,13 @@
 #app {
   margin: 1rem;
+  font-family: raleway;
 }
 
-.color {
+.scrambled {
   color: purple;
+  font-size: 4rem;
+  font-weight: 800;
 }
-
 
 
 .btn btn-primary {
@@ -17,14 +19,38 @@
   font-size: 12px;
 }
 
+
 .right {
   margin-left: 4rem;
   float: left;
 
 }
 
+
 .left {
   margin-right: 4rem;
   float: right;
 
+}
+
+span {
+  width: 0.5rem;
+  padding: .2rem;
+  padding-left: .2rem;
+  padding-right: .5rem;
+  margin: 5px;
+  text-align: center;
+  color: black;
+  background-color: white;
+
+}
+
+
+
+.btn-danger {
+  color: black;
+}
+
+h1 {
+  font-size: 2rem;
 }

@@ -51,48 +51,52 @@ const app = new Vue({
       scrambledWord: '',
       points: 0,
       strikes: 0,
-      passes: 0,
+      passes: 3,
       maxPasses: 3,
-      maxStrikes: 3
+      maxStrikes: 3,
+
+
+
     },
+
+    shot: '',
     message: '',
-    guess: '',
-    color: {
-      color: 'purple'
+
+    scrambled: {
+      color: 'purple',
+      fontSize: '',
+      fontWeight: ''
     }
 
   },
   mounted: function () {
 
     this.start()
+    const ls = localStorage.getItem('guessTheWord')
+    if (ls) {
+      const game = JSON.parse(ls)
+      this.game = game
+    }
 
-    this.shot = JSON.parse(localStorage.getItem(storageKey) || '[]')
   },
-
   methods: {
 
 
 
-    nextWord: function () {
-      this.game.word = this.game.words.shift()
-      this.game.scrambledWord = shuffle(this.game.word)
-      console.log(`The next scrambled word is: ${this.game.scrambledWord}`)
-    },
 
     start: function () {
       if (!this.game.active) {
         this.game.active = true
-        this.game.strikes = 0
+        this.game.strikes = 3
         this.game.points = 0
         this.game.passes = 3
         this.game.words = shuffle(this.words)
         this.game.word = this.words.shift()
         this.game.scrambledWord = shuffle(this.game.word)
         this.message = `Guess the scrambled word`
-        console.log(`Guess the scrambled word: ${this.game.scrambledWord}`)
-      } else {
-        console.log('There is an active game!... Finish current game before you start a new one.')
+
       }
+      this.save()
     },
 
 
@@ -121,24 +125,26 @@ const app = new Vue({
       if (this.game.active) {
         shot = shot.toUpperCase()
 
-        if (shot === this.game.word) {
+        if (this.shot === this.game.word) {
           this.game.points++
           if (this.game.words.length > 0) {
             this.message = `Congratulations you have won 1 point!`
-
-            console.log(`Congratulations you have won 1 point!. Your current score is ${this.game.points}`)
             this.nextWord()
-          } else {
-            this.message = `Congratulations you have finished the game!  `
-            console.log(`Congratulations you have finished the game! your score is: ${this.game.points}`)
-            this.game.active = false
+            console.log(`Congratulations you have won 1 point!. Your current score is ${this.game.points}`)
+
           }
+          else {
+
+            this.message = `Congratulations you have finished the game!  `
+            this.game.active = false
+            this.start()
+          }
+
+
         } else {
-          this.game.strikes++
+          this.game.strikes--
           if (this.game.strikes > 0) {
             this.message = `Strike! Please try again.`
-            console.log(`Strike! Please try again. You have ${this.game.strikes} more chance(s).`)
-            console.log(`The current scrambled word is: ${this.game.scrambledWord}`)
 
             /* if the strike should give a new word:
                       if(game.words.length > 0 ){
@@ -150,11 +156,12 @@ const app = new Vue({
                         game.active = false
                       }
                       */
-          } else {
+          } if (this.game.strikes <= 0) {
+            setTimeout(2)
             this.message = `Strike! You have reached the maximum number of strikes. Your final score is: ${this.game.points}.`
 
-
             this.game.active = false
+            this.start()
           }
         }
       }
@@ -162,7 +169,11 @@ const app = new Vue({
       // this.shot = JSON.stringify(localStorage.setItem(storageKey) || '[]')
     },
 
+    nextWord: function () {
+      this.game.word = this.game.words.shift()
+      this.game.scrambledWord = shuffle(this.game.word)
 
+    },
 
     /** The pass() Function
      * Check if player passes are true
@@ -176,25 +187,25 @@ const app = new Vue({
 
 
           if (this.game.words.length > 0) {
-
             this.message = `You have used a pass! Please try again. You have ${this.game.passes} more pass(es).`
-
-            console.log(`You have used a pass! Please try again. You have ${this.game.passes} more pass(es).`)
             this.nextWord()
-          } else {
 
-            this.message = `You have used a pass! Your final score is: ${game.points}`
-
-            game.active = false
           }
-        } else {
-          console.log(`You have reached your maximum number of passes, please guess again.`)
-        }
-      } else {
-        console.log('There is NO active game! To start guessing please start a new game.')
-      }
-    }
 
+
+          else {
+            this.game.passes <= 0
+            this.message = `You have used a pass! Your final score is: ${game.points}`
+            this.game.active = false
+            this.start()
+          }
+        }
+      }
+
+    },
+    save: function () {
+      localStorage.setItem('guessTheWord', JSON.stringify(this.game))
+    }
   }
 
 
